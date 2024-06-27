@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sozluk_app/detay_sayfa.dart';
 import 'package:sozluk_app/kelimeler.dart';
+import 'package:sozluk_app/kelimelerDao.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,7 +16,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.amber,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: const Anasayfa(),
@@ -35,11 +36,13 @@ class _AnasayfaState extends State<Anasayfa> {
   String aramaKelimesi = "";
 
   Future<List<Kelimeler>> tumKelimelerGoster() async {
-    List<Kelimeler> kelimelerListesi = [
-      Kelimeler(kelimeId: 1, ingilizce: "Dog", turkce: "Köpek"),
-      Kelimeler(kelimeId: 2, ingilizce: "Fish", turkce: "Balık"),
-      Kelimeler(kelimeId: 3, ingilizce: "Table", turkce: "Masa"),
-    ];
+    List<Kelimeler> kelimelerListesi = await KelimelerDao().tumKelimeler();
+    return kelimelerListesi;
+  }
+
+  Future<List<Kelimeler>> aramaYap(String aramaKelimesi) async {
+    List<Kelimeler> kelimelerListesi =
+        await KelimelerDao().kelimeAra(aramaKelimesi);
     return kelimelerListesi;
   }
 
@@ -47,6 +50,7 @@ class _AnasayfaState extends State<Anasayfa> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.amberAccent,
         title: aramaYapiliyorMu
             ? TextField(
                 decoration:
@@ -81,7 +85,8 @@ class _AnasayfaState extends State<Anasayfa> {
         ],
       ),
       body: FutureBuilder<List<Kelimeler>>(
-        future: tumKelimelerGoster(),
+        future:
+            aramaYapiliyorMu ? aramaYap(aramaKelimesi) : tumKelimelerGoster(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             var kelimelerListesi = snapshot.data;
